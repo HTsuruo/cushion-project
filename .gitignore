@@ -11,6 +11,7 @@ _mailinglist
 .tox
 .cache/
 .idea/
+static/bower_component/
 
 # Coverage reports
 htmlcov
