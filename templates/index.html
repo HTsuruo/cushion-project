@@ -1,8 +1,21 @@
-<html>
-<head>
-    <title>Hello {{ title }}</title>
-</head>
-<body>
-    <h2>{{ title }}です</h2>
-</body>
-</html>
+{% extends "layout.html" %}
+
+{% block content %}
+
+<!-- .contents header -->
+<section class="content-header">
+  <h1>
+    Page Header
+    <small>Optional description</small>
+  </h1>
+</section>
+<!-- /.contents header -->
+
+<!-- Main content -->
+<section class="content">
+
+  <!-- Your Page Content Here -->
+
+</section>
+
+{% endblock %}
