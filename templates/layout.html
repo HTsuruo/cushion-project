@@ -11,6 +11,7 @@
     <!-- Theme style -->
     <link rel="stylesheet" href="{{ url_for('static', filename='bower_components/admin-lte/dist/css/AdminLTE.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='bower_components/admin-lte/dist/css/skins/skin-blue.css') }}">
+    {% block css %}{% endblock %}
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
     <div class="wrapper">
@@ -31,5 +32,7 @@
     <script src="{{ url_for('static', filename='bower_components/admin-lte/plugins/jQuery/jquery-2.2.3.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bower_components/admin-lte/bootstrap/js/bootstrap.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bower_components/admin-lte/dist/js/app.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='custom/js/main.js') }}"></script>
+    {% block javascript %}{% endblock %}
     </body>
 </html>

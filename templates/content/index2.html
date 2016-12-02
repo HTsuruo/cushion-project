@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<!-- .contents header -->
+<section class="content-header">
+  <h1>
+    ページタイトル
+    <small>indexのページコンテンツです</small>
+  </h1>
+</section>
+<!-- /.contents header -->
+
+<!-- Main content -->
+<section class="content">
+
+    <!-- Your Page Content Here -->
+    <p>コンテンツです</p>
+
+</section>
+
+{% endblock %}
+
+
+{% block javascript %}
+    <script type="text/javascript">
+        $(function(){
+            $(".sidebar-menu #index2").addClass("active");
+        });
+    </script>
+{% endblock %}
