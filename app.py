@@ -3,19 +3,17 @@
 
 import os
 from flask import Flask, render_template
-from flaskext.mysql import MySQL
+from model import db
+from model import Connection
 
-mysql = MySQL()
 app = Flask(__name__)
-app.config['MYSQL_DATABASE_USER'] = 'hideking_user'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'hideking'
-app.config['MYSQL_DATABASE_DB'] = 'hideking_arduinoinfo'
-app.config['MYSQL_DATABASE_HOST'] = 'mysql1.php.xdomain.ne.jp'
-mysql.init_app(app)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://hideking_user:hideking@mysql1.php.xdomain.ne.jp/hideking_arduinoinfo'
+db.init_app(app)
 
 @app.route('/')
 def index():
-    return render_template("content/index.html")
+    c = Connection.query.first()
+    return render_template("content/index.html", data=c)
 
 @app.route('/index2')
 def index2():
