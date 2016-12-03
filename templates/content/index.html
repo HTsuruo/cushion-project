@@ -39,7 +39,12 @@
                             <span class="label label-danger">停止中</span>
                         {% endif %}
                     </td>
-                    <td>{{ item.connected_name }}</td>
+                    <td class="connected">
+                        {{ item.connected_name }}
+                        <input type="button" value="変更" class="btn btn-default btn-xs edit-btn">
+                        <input type="button" value="キャンセル" class="btn btn-default btn-xs cancel-btn">
+                        <input type="submit" value="保存" class="btn btn-primary btn-xs save-btn">
+                    </td>
                     <td>{{ item.latest_date }}</td>
                 </tr>
                 {% endfor %}
@@ -56,6 +61,19 @@
     <script type="text/javascript">
         $(function(){
             $(".sidebar-menu #index").addClass("active");
+
+            $("td.connected .cancel-btn").hide();
+            $("td.connected .save-btn").hide();
+            $("td.connected .edit-btn").bind('click', function() {
+                $(this).hide();
+                $(this).siblings(".cancel-btn").show();
+                $(this).siblings(".save-btn").show();
+            });
+            $("td.connected .cancel-btn").bind('click', function() {
+                $(this).hide();
+                $(this).siblings(".save-btn").hide();
+                $(this).siblings(".edit-btn").show();
+            });
         });
     </script>
 {% endblock %}
