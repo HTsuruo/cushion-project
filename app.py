@@ -33,7 +33,7 @@ def index():
         data = {}
         latest_date = util.get_latest_date(item.id)
         data["name"] = item.name
-        data["state"] = util.is_active(latest_date)
+        data["status"] = util.is_active(latest_date)
         data["connected_name"] = Connection.query.filter_by(connect=item.id).first().name
         data["latest_date"] = latest_date
         item_list.append(data)

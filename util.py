@@ -1,4 +1,3 @@
-#!/bin/env python
 # coding: utf-8
 
 from model import *
@@ -14,12 +13,13 @@ def get_latest_date(cushion_id):
 
 
 # クッションが稼働中か否かを返します.
-# 現在時刻と比較して30秒以内をみます.
-def is_active(latest_date_str):
-    # latest_date_time = datetime.strftime(latest_date_str, '%Y-%m-%d %H:%M:%S')
-    # epo_time_latest = datetime_to_epoch(latest_date_time)
-    # epo_time_now = datetime_to_epoch(datetime.now().date())
-    # diff = epo_time_latest - epo_time_now
+# 現在時刻と比較して60秒以内をみます.
+def is_active(latest_date):
+    epo_time_latest = datetime_to_epoch(latest_date)
+    epo_time_now = datetime_to_epoch(datetime.now())
+    diff = epo_time_now - epo_time_latest
+    if diff < 0 or diff > 60:
+        return False
     return True
 
 
