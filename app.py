@@ -2,7 +2,7 @@
 # coding: utf-8
 
 import os
-from flask import Flask, render_template, jsonify, redirect, url_for
+from flask import Flask, render_template, jsonify, redirect, url_for, request
 from model import db
 from model import Connection
 import util
@@ -37,9 +37,11 @@ def index():
         data["id"] = item.id
         data["name"] = item.name
         data["status"] = util.is_active(latest_date)
-        data["connected_name"] = Connection.query.filter_by(connect=item.id).first().name
         data["connected_id"] = item.connect
         data["latest_date"] = latest_date
+        if Connection.query.filter_by(connect=item.id).first() is not None:
+            data["connected_name"] = Connection.query.filter_by(connect=item.id).first().name
+
         item_list.append(data)
     return render_template("content/index.html", item_list=item_list, connection_list=Connection.query.all())
 
@@ -63,14 +65,32 @@ def hello(name):
 
 @app.route('/api/change_connection_pair', methods=['POST'])
 def change_connection_pair():
-    connection = Connection.query.filter_by(id=1).first()
-    connection.connect = 3
-    db.session.add(connection)
+    id = request.form.get("id")
+    connected_id = request.form.get("connected_id")
+    if id is None or connected_id is None:
+        return
+
+    # 接続先が既に存在する場合は空にします.
+    conn_old = Connection.query.filter_by(connect=connected_id).first()
+    if conn_old is not None:
+        conn_old.connect = None
+        db.session.add(conn_old)
+        db.session.commit()
+
+    conn = Connection.query.filter_by(id=id).first()
+    conn.connect = connected_id
+    db.session.add(conn)
     db.session.commit()
 
-    target_connection = Connection.query.filter_by(id=3).first()
-    target_connection.connect = 1
-    db.session.add(target_connection)
+    conn_old = Connection.query.filter_by(connect=id).first()
+    if conn_old is not None:
+        conn_old.connect = None
+        db.session.add(conn_old)
+        db.session.commit()
+
+    target_conn = Connection.query.filter_by(id=connected_id).first()
+    target_conn.connect = id
+    db.session.add(target_conn)
     db.session.commit()
 
     return redirect(url_for('index'))

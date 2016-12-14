@@ -18,6 +18,7 @@
     <div class="box">
         <div class="box-header with-border">
             <h3 class="box-title">一覧</h3>
+            <div>※クッションのペアリングを変更する場合は，新しくペアとなるクッションを選択してください</div>
         </div>
 
         <div class="box-body table-responsive no-padding">
@@ -41,13 +42,15 @@
                                 {% endif %}
                             </td>
                             <td class="connected">
-                                    <select name="connect" class="form-control">
-                                        {% for connection in connection_list %}
-                                            <option value="{{ connection.id }}" {% if connection.id == item.connected_id %}selected{% endif %}>{{ connection.name }}</option>
-                                        {%  endfor %}
-                                    </select>
-                                    <input type="button" id="{{ item.id }}" value="変更" class="btn btn-primary btn-xs save-btn">
-                                </form>
+                                <select name="" class="form-control">
+                                    <option value="0">選択してください</option>
+                                    {% for conn in connection_list %}
+                                        {% if item.id != conn.id %}
+                                            <option value="{{ conn.id }}" {% if conn.id == item.connected_id %}selected{% endif %}>{{ conn.name }}</option>
+                                        {% endif %}
+                                    {%  endfor %}
+                                </select>
+                                <input type="button" id="{{ item.id }}" value="保存" class="btn btn-primary btn-xs save-btn">
                             </td>
                             <td>{{ item.latest_date }}</td>
                         </tr>
@@ -65,12 +68,22 @@
 
 {% block javascript %}
     <script type="text/javascript">
-        $(function(){
+        $(function() {
             $(".sidebar-menu #index").addClass("active");
+
+            $(".save-btn").hide();
+            $("td.connected select").bind("change", function () {
+                if($(this).val() < 1 ){
+                    $(this).siblings(".save-btn").hide();
+                    return
+                }
+                $(this).siblings(".save-btn").show();
+            });
 
             $("td.connected .save-btn").bind('click', function() {
                 var id = $(this).attr("id");
                 $("input[type='hidden'][name='id']").val(id);
+                $(this).siblings("select").attr("name", "connected_id");
                 $("form.connection-form").submit();
             });
         });
