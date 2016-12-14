@@ -12,7 +12,7 @@
 <!-- /.contents header -->
 
 <!-- Main content -->
-<section class="content">
+<section class="content" id="cushion">
 
    <!-- コンテンツ1 -->
     <div class="box">
@@ -28,27 +28,33 @@
                     <th>ペア</th>
                     <th>最終利用日</th>
                 </tr>
-            {% if item_list is not none %}
-                {% for item in item_list %}
-                <tr>
-                    <td>{{ item.name }}</td>
-                    <td>
-                        {% if item.status %}
-                            <span class="label label-success">稼働中</span>
-                        {% else %}
-                            <span class="label label-danger">停止中</span>
-                        {% endif %}
-                    </td>
-                    <td class="connected">
-                        {{ item.connected_name }}
-                        <input type="button" value="変更" class="btn btn-default btn-xs edit-btn">
-                        <input type="button" value="キャンセル" class="btn btn-default btn-xs cancel-btn">
-                        <input type="submit" value="保存" class="btn btn-primary btn-xs save-btn">
-                    </td>
-                    <td>{{ item.latest_date }}</td>
-                </tr>
-                {% endfor %}
-            {% endif %}
+                <form class="connection-form" action="/api/change_connection_pair" method="post">
+                    {% if item_list is not none %}
+                        {% for item in item_list %}
+                        <tr>
+                            <td>{{ item.name }}</td>
+                            <td>
+                                {% if item.status %}
+                                    <span class="label label-success">稼働中</span>
+                                {% else %}
+                                    <span class="label label-danger">停止中</span>
+                                {% endif %}
+                            </td>
+                            <td class="connected">
+                                    <select name="connect" class="form-control">
+                                        {% for connection in connection_list %}
+                                            <option value="{{ connection.id }}" {% if connection.id == item.connected_id %}selected{% endif %}>{{ connection.name }}</option>
+                                        {%  endfor %}
+                                    </select>
+                                    <input type="button" id="{{ item.id }}" value="変更" class="btn btn-primary btn-xs save-btn">
+                                </form>
+                            </td>
+                            <td>{{ item.latest_date }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% endif %}
+                    <input type="hidden" name="id" value="">
+                </form>
               </table>
         </div>
     </div>
@@ -62,17 +68,10 @@
         $(function(){
             $(".sidebar-menu #index").addClass("active");
 
-            $("td.connected .cancel-btn").hide();
-            $("td.connected .save-btn").hide();
-            $("td.connected .edit-btn").bind('click', function() {
-                $(this).hide();
-                $(this).siblings(".cancel-btn").show();
-                $(this).siblings(".save-btn").show();
-            });
-            $("td.connected .cancel-btn").bind('click', function() {
-                $(this).hide();
-                $(this).siblings(".save-btn").hide();
-                $(this).siblings(".edit-btn").show();
+            $("td.connected .save-btn").bind('click', function() {
+                var id = $(this).attr("id");
+                $("input[type='hidden'][name='id']").val(id);
+                $("form.connection-form").submit();
             });
         });
     </script>

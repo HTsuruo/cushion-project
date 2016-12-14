@@ -2,7 +2,7 @@
 # coding: utf-8
 
 import os
-from flask import Flask, render_template
+from flask import Flask, render_template, jsonify, redirect, url_for
 from model import db
 from model import Connection
 import util
@@ -30,14 +30,18 @@ def index():
     connection_list = Connection.query.order_by(Connection.id)
     item_list = list()
     for item in connection_list:
+        if item is None:
+            continue
         data = {}
         latest_date = util.get_latest_date(item.id)
+        data["id"] = item.id
         data["name"] = item.name
         data["status"] = util.is_active(latest_date)
         data["connected_name"] = Connection.query.filter_by(connect=item.id).first().name
+        data["connected_id"] = item.connect
         data["latest_date"] = latest_date
         item_list.append(data)
-    return render_template("content/index.html", item_list=item_list)
+    return render_template("content/index.html", item_list=item_list, connection_list=Connection.query.all())
 
 
 @app.route('/index2')
@@ -55,6 +59,21 @@ def hello(name):
     if name == '':
         name = '名無しさん'
     return render_template('hello.html', name=name)
+
+
+@app.route('/api/change_connection_pair', methods=['POST'])
+def change_connection_pair():
+    connection = Connection.query.filter_by(id=1).first()
+    connection.connect = 3
+    db.session.add(connection)
+    db.session.commit()
+
+    target_connection = Connection.query.filter_by(id=3).first()
+    target_connection.connect = 1
+    db.session.add(target_connection)
+    db.session.commit()
+
+    return redirect(url_for('index'))
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))

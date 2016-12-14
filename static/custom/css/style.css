@@ -1,0 +1,8 @@
+#cushion .connected select {
+    display: inline-block;
+    width: auto;
+}
+
+#cushion .connected .save-btn {
+    height: 30px;
+}
