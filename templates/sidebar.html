@@ -11,21 +11,20 @@
             <i class="fa fa-circle-o text-aqua"></i><span>クッション</span>
           </a>
         </li>
-        <li id="index2">
-          <a href="/index2">
-            <i class="fa fa-circle-o"></i><span>Another Link</span>
-          </a>
-        </li>
-        <li id="index3">
-          <a href="/index3">
-            <i class="fa fa-circle-o"></i><span>Multilevel</span>
+{#        <li id="index2">#}
+{#          <a href="/index2">#}
+{#            <i class="fa fa-circle-o text-aqua"></i><span>センサデータ</span>#}
+{#          </a>#}
+{#        </li>#}
+        <li id="sensor-data">
+          <a href="/sensor_data">
+            <i class="fa fa-circle-o text-aqua"></i><span>センサデータ</span>
               <span class="pull-right-container">
                 <i class="fa fa-angle-left pull-right"></i>
               </span>
           </a>
           <ul class="treeview-menu">
-            <li><a href="#">Link in level 2</a></li>
-            <li><a href="#">Link in level 2</a></li>
+              <!-- クッションのリストが格納されます. -->
           </ul>
         </li>
       </ul>
@@ -33,3 +32,16 @@
     </section>
     <!-- /.sidebar -->
 </aside>
+
+{% block javascript %}
+    <script>
+        $(function() {
+            $.getJSON("/api/cushion/all", function(data) {
+                var elem = $("#sensor-data ul.treeview-menu")
+                $.each( data.data, function (key, val) {
+                    elem.append("<li><a href=/sensor_data/"+val.id+">"+val.name+"</a></li>");
+                });
+            });
+        })
+    </script>
+{% endblock %}

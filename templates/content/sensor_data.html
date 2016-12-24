@@ -5,8 +5,8 @@
 <!-- .contents header -->
 <section class="content-header">
   <h1>
-    ページタイトル
-    <small>indexのページコンテンツです</small>
+    クッション{{ cushion_id }}のセンサデータ
+    <small>センサデータを管理するページです</small>
   </h1>
 </section>
 <!-- /.contents header -->
@@ -25,7 +25,7 @@
 {% block javascript %}
     <script type="text/javascript">
         $(function(){
-            $(".sidebar-menu #index2").addClass("active");
+            $(".sidebar-menu #sensor-data").addClass("active");
         });
     </script>
 {% endblock %}

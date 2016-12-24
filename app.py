@@ -46,9 +46,9 @@ def index():
     return render_template("content/index.html", item_list=item_list, connection_list=Connection.query.all())
 
 
-@app.route('/index2')
-def index2():
-    return render_template("content/index2.html")
+@app.route('/sensor_data/<cushion_id>')
+def sensor_data(cushion_id):
+    return render_template("content/sensor_data.html", cushion_id=cushion_id)
 
 
 @app.route('/index3')
@@ -94,6 +94,21 @@ def change_connection_pair():
     db.session.commit()
 
     return redirect(url_for('index'))
+
+
+@app.route('/api/cushion/all')
+def get_cushion_all():
+    conn_list = Connection.query.order_by(Connection.id)
+    cushion_list = list()
+    for item in conn_list:
+        if item is None:
+            continue
+        data = {}
+        data["id"] = item.id
+        data["name"] = item.name
+        cushion_list.append(data)
+
+    return jsonify(data=cushion_list)
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
