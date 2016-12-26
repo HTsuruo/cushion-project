@@ -36,9 +36,11 @@ def index():
         latest_date = util.get_latest_date(item.id)
         data["id"] = item.id
         data["name"] = item.name
-        data["status"] = util.is_active(latest_date)
         data["connected_id"] = item.connect
-        data["latest_date"] = latest_date
+
+        if latest_date is not None:
+            data["status"] = util.is_active(latest_date)
+            data["latest_date"] = latest_date
         if Connection.query.filter_by(connect=item.id).first() is not None:
             data["connected_name"] = Connection.query.filter_by(connect=item.id).first().name
 
@@ -49,11 +51,6 @@ def index():
 @app.route('/sensor_data/<cushion_id>')
 def sensor_data(cushion_id):
     return render_template("content/sensor_data.html", cushion_id=cushion_id)
-
-
-@app.route('/index3')
-def index3():
-    return render_template("content/index3.html")
 
 
 @app.route('/hello/<name>')
