@@ -6,22 +6,12 @@ import time
 
 
 def get_latest_date(cushion_id):
-    if cushion_id == 1:
-        latest_data = Cushion1.query.order_by(Cushion1.id.desc()).first()
-        if latest_data is not None:
+    if cushion_id is None:
+        return None
+
+    latest_data = SensorData.query.filter_by(cushion_id=cushion_id).order_by(SensorData.id.desc()).first()
+    if latest_data is not None:
             return latest_data.timestamp
-    if cushion_id == 2:
-        latest_data = Cushion2.query.order_by(Cushion2.id.desc()).first()
-        if latest_data is not None:
-            return latest_data.timestamp
-    if cushion_id == 3:
-        latest_data = Cushion3.query.order_by(Cushion3.id.desc()).first()
-        if latest_data is not None:
-            return latest_data.timestamp
-    if cushion_id == 4:
-        latest_data = Cushion4.query.order_by(Cushion4.id.desc()).first()
-        if latest_data is not None:
-            return latest_data.timeStamp
     return None
 
 
