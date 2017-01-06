@@ -96,17 +96,13 @@ def download_csv(cushion_id, rand_id):
     writer = csv.DictWriter(csvfile, header)
     writer.writeheader()
     for row in rows:
-        writer.writerow(row)
+        writer.writerow(row.items())
         # writer.writerow(
         #     dict(
-        #         (k, v.encode('utf-8') if type(v) is unicode else v) for k, v in row.iteritems()
+        #         (k, v.encode('utf-8') if type(v) is unicode else v) for k, v in row.items()
         #     )
         # )
     csvfile.seek(0)
-    # response = make_response(rows)
-    # cd = 'attachment; filename=mycsv.csv'
-    # response.headers['Content-Disposition'] = cd
-    # response.mimetype='text/csv'
     return send_file(csvfile, attachment_filename='sales_export.csv', as_attachment=True)
 
 
