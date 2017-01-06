@@ -2,11 +2,11 @@
 # coding: utf-8
 
 import os
-from flask import Flask, render_template, jsonify, redirect, url_for, request
-from model import db
-from model import Connections
+from flask import Flask, render_template, jsonify, redirect, url_for, request, make_response, send_file
 from model import *
 import util
+import io
+import csv
 
 app = Flask(__name__)
 
@@ -51,14 +51,63 @@ def index():
 
 @app.route('/sensor_data/<cushion_id>')
 def sensor_data(cushion_id):
-    return render_template("content/sensor_data.html", cushion_id=cushion_id)
+    sensor_data_list = SensorData.query.filter_by(cushion_id=cushion_id)
+    if sensor_data_list is None:
+        return
+    rand_ids = []
+    for data in sensor_data_list:
+        rand_ids.append(data.rand_id)
+    rand_ids = list(set(rand_ids)) #重複を排除します.
+
+    time_rand_map = {}
+    for rand_id in rand_ids:
+        data = sensor_data_list.filter_by(rand_id=rand_id)
+        data_desc = data.order_by(SensorData.timestamp.desc())
+        begin_time = data.first().timestamp
+        end_time = data_desc.first().timestamp
+        date_str = util.date_formatter(begin_time) + " ~ " + util.date_formatter(end_time)
+        time_rand_map[rand_id] = date_str
+
+    print(time_rand_map)
+
+    return render_template("content/sensor_data.html", cushion_id=cushion_id, time_rand_map=time_rand_map)
 
 
-@app.route('/hello/<name>')
-def hello(name):
-    if name == '':
-        name = '名無しさん'
-    return render_template('hello.html', name=name)
+@app.route('/csv/<cushion_id>/<rand_id>')
+def download_csv(cushion_id, rand_id):
+    csvfile = io.StringIO()
+    data_list = SensorData.query.filter_by(cushion_id=cushion_id).filter_by(rand_id=rand_id)
+    header = ['id', 'sensor_1', 'sensor_2', 'sensor_3', 'sensor_4', 'sensor_5', 'sensor_6', 'timestamp']
+    rows = []
+    for data in data_list:
+        rows.append(
+            {
+                'id': data.id,
+                'sensor_1': data.sensor_1,
+                'sensor_2': data.sensor_2,
+                'sensor_3': data.sensor_3,
+                'sensor_4': data.sensor_4,
+                'sensor_5': data.sensor_5,
+                'sensor_6': data.sensor_6,
+                'timestamp': data.timestamp
+            }
+        )
+
+    writer = csv.DictWriter(csvfile, header)
+    writer.writeheader()
+    for row in rows:
+        writer.writerow(row)
+        # writer.writerow(
+        #     dict(
+        #         (k, v.encode('utf-8') if type(v) is unicode else v) for k, v in row.iteritems()
+        #     )
+        # )
+    csvfile.seek(0)
+    # response = make_response(rows)
+    # cd = 'attachment; filename=mycsv.csv'
+    # response.headers['Content-Disposition'] = cd
+    # response.mimetype='text/csv'
+    return send_file(csvfile, attachment_filename='sales_export.csv', as_attachment=True)
 
 
 '''
@@ -135,6 +184,7 @@ def get_cushion_all():
         cushion_list.append(data)
 
     return jsonify(data=cushion_list)
+
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))

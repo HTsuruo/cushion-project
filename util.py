@@ -32,3 +32,7 @@ def datetime_to_epoch(d):
 
 def epoch_to_datetime(epoch):
     return datetime(*time.localtime(epoch)[:6])
+
+
+def date_formatter(date):
+    return date.strftime("%Y/%m/%d %H:%M:%S")
