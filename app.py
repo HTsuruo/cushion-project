@@ -5,6 +5,7 @@ import os
 from flask import Flask, render_template, jsonify, redirect, url_for, request, make_response, send_file
 from model import *
 import util
+import calc
 import pandas as pd
 from datetime import datetime
 
@@ -24,6 +25,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://' \
                                         + app.config['MYSQL_DATABASE_PASSWORD'] + '@' \
                                         + app.config['MYSQL_DATABASE_HOST'] + '/' + app.config['MYSQL_DATABASE_DB']
 db.init_app(app)
+SENSOR_NUM = 6
 
 
 @app.route('/')
@@ -120,36 +122,37 @@ def download_csv(cushion_id, rand_id):
 def get_data(cushion_id):
 
     # クエリパラメータを取得します.
-    SENSOR_NUM = 6
-    sensors = []
+    raw_data = []
     for i in range(SENSOR_NUM):
-        sensors.append(request.args.get('sensor_'+str(i+1)))
-    randId = request.args.get('randId')
+        raw_data.append(request.args.get('sensor_'+str(i+1), type=int))
+    rand_id = request.args.get('randId', type=int)
+
+    if raw_data is None or rand_id is None:
+        return jsonify(error="sensor data could not found.")
+
+    cali_data = calc.do_calibration(cushion_id, rand_id, raw_data)
+    ws = calc.calc_working_state(cali_data)
+    diff = calc.get_movement_diff(cushion_id, cali_data)
 
     # DBにデータを書き込みます
-    item = SensorData(cushion_id, sensors[0], sensors[1], sensors[2], sensors[3], sensors[4], sensors[5], randId)
+    print("raw_data: "+str(raw_data))
+    item = SensorData(cushion_id, raw_data[0], raw_data[1], raw_data[2], raw_data[3], raw_data[4], raw_data[5], rand_id)
     db.session.add(item)
 
-    # キャリブレーションの基準値を取得します.
-    base = SensorData.query.filter_by(cushion_id=cushion_id).order_by(SensorData.timestamp).first()
-
-    working_state = 10
-    diff = 5
-
     # DBに作業レベルデータを書き込みます.
-    ws_item = WorkingStates(cushion_id, working_state, diff)
+    ws_item = WorkingStates(cushion_id, ws, diff)
     db.session.add(ws_item)
     db.session.commit()
 
-    #ペアリングしているクッションを取得
-    # conn = Connections.query.filter_by(id=id).first()
-    # if conn is None:
-    #     return
-    # connected_id = conn.connected_id
+    # ペアリングしているクッションを取得
+    conn = Connections.query.filter_by(id=cushion_id).first()
+    if conn is None:
+        return
+    connected_id = conn.connected_id
 
-    # DBに格納してある自分と相手の最新10個の作業レベルデータを取得します.
-    ws_self = 8
-    ws_partner = 15
+    # DBに格納してある自分と相手の最新5個の作業レベルデータを取得します.
+    ws_self = calc.get_working_state_average(cushion_id)
+    ws_partner = calc.get_working_state_average(connected_id)
 
     # for json data.
     data = {}
