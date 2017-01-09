@@ -116,10 +116,46 @@ def download_csv(cushion_id, rand_id):
 '''
 
 
-@app.route('/api/data/get/<cushion_id>', methods=['GET'])
+@app.route('/api/get/json/<cushion_id>', methods=['GET'])
 def get_data(cushion_id):
+
+    # クエリパラメータを取得します.
+    SENSOR_NUM = 6
+    sensors = []
+    for i in range(SENSOR_NUM):
+        sensors.append(request.args.get('sensor_'+str(i+1)))
+    randId = request.args.get('randId')
+
+    # DBにデータを書き込みます
+    item = SensorData(cushion_id, sensors[0], sensors[1], sensors[2], sensors[3], sensors[4], sensors[5], randId)
+    db.session.add(item)
+
+    # キャリブレーションの基準値を取得します.
+    base = SensorData.query.filter_by(cushion_id=cushion_id).order_by(SensorData.timestamp).first()
+
+    working_state = 10
+    diff = 5
+
+    # DBに作業レベルデータを書き込みます.
+    ws_item = WorkingStates(cushion_id, working_state, diff)
+    db.session.add(ws_item)
+    db.session.commit()
+
+    #ペアリングしているクッションを取得
+    # conn = Connections.query.filter_by(id=id).first()
+    # if conn is None:
+    #     return
+    # connected_id = conn.connected_id
+
+    # DBに格納してある自分と相手の最新10個の作業レベルデータを取得します.
+    ws_self = 8
+    ws_partner = 15
+
+    # for json data.
     data = {}
-    data["cushion_id"] = cushion_id
+    data["ws_self"] = ws_self
+    data["ws_partner"] = ws_partner
+
     return jsonify(data=data)
 
 
