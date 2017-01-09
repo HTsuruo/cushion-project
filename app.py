@@ -8,6 +8,7 @@ import util
 import calc
 import pandas as pd
 from datetime import datetime
+from collections import OrderedDict
 
 app = Flask(__name__)
 
@@ -53,16 +54,21 @@ def index():
 
 @app.route('/sensor_data/<cushion_id>')
 def sensor_data(cushion_id):
-    sensor_data_list = SensorData.query.filter_by(cushion_id=cushion_id)
+    sensor_data_list = SensorData.query.filter_by(cushion_id=cushion_id).order_by(SensorData.timestamp.desc())
     if sensor_data_list is None:
         return
     rand_ids = []
     for data in sensor_data_list:
         rand_ids.append(data.rand_id)
-    rand_ids = list(set(rand_ids)) #重複を排除します.
+    # 順序を保ったまま重複を排除します.
+    rand_ids_unique = []
+    for i in rand_ids:
+        if not i in rand_ids_unique:
+            rand_ids_unique.append(i)
+    # rand_ids = list(set(rand_ids))
 
-    time_rand_map = {}
-    for rand_id in rand_ids:
+    time_rand_map = OrderedDict()
+    for rand_id in rand_ids_unique:
         data = sensor_data_list.filter_by(rand_id=rand_id)
         data_desc = data.order_by(SensorData.timestamp.desc())
         begin_time = data.first().timestamp
@@ -135,7 +141,6 @@ def get_data(cushion_id):
     diff = calc.get_movement_diff(cushion_id, cali_data)
 
     # DBにデータを書き込みます
-    print("raw_data: "+str(raw_data))
     item = SensorData(cushion_id, raw_data[0], raw_data[1], raw_data[2], raw_data[3], raw_data[4], raw_data[5], rand_id)
     db.session.add(item)
 
