@@ -76,8 +76,6 @@ def sensor_data(cushion_id):
         date_str = util.date_formatter(begin_time) + " ~ " + util.date_formatter(end_time) + "（識別子ID: " + str(rand_id) + "）"
         time_rand_map[rand_id] = date_str
 
-    print(time_rand_map)
-
     return render_template("content/sensor_data.html", cushion_id=cushion_id, time_rand_map=time_rand_map)
 
 
