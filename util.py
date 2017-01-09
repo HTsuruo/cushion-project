@@ -36,3 +36,7 @@ def epoch_to_datetime(epoch):
 
 def date_formatter(date):
     return date.strftime("%Y/%m/%d %H:%M:%S")
+
+
+def get_current_date():
+    return datetime.now().strftime("%Y%m%d_%H%M%S")

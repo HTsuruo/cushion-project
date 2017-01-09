@@ -48,7 +48,8 @@
                 }
                 var target = $(".download-btn").parent();
                 var href = target.attr('href');
-                href += val
+                href = "/csv/{{ cushion_id }}/";
+                href += val;
                 target.attr("href", href);
             });
 

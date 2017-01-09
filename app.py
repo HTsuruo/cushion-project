@@ -5,8 +5,8 @@ import os
 from flask import Flask, render_template, jsonify, redirect, url_for, request, make_response, send_file
 from model import *
 import util
-import io
-import csv
+import pandas as pd
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -65,7 +65,7 @@ def sensor_data(cushion_id):
         data_desc = data.order_by(SensorData.timestamp.desc())
         begin_time = data.first().timestamp
         end_time = data_desc.first().timestamp
-        date_str = util.date_formatter(begin_time) + " ~ " + util.date_formatter(end_time)
+        date_str = util.date_formatter(begin_time) + " ~ " + util.date_formatter(end_time) + "（識別子ID: " + str(rand_id) + "）"
         time_rand_map[rand_id] = date_str
 
     print(time_rand_map)
@@ -75,35 +75,40 @@ def sensor_data(cushion_id):
 
 @app.route('/csv/<cushion_id>/<rand_id>')
 def download_csv(cushion_id, rand_id):
-    csvfile = io.StringIO()
     data_list = SensorData.query.filter_by(cushion_id=cushion_id).filter_by(rand_id=rand_id)
-    header = ['id', 'sensor_1', 'sensor_2', 'sensor_3', 'sensor_4', 'sensor_5', 'sensor_6', 'timestamp']
-    rows = []
-    for data in data_list:
-        rows.append(
-            {
-                'id': data.id,
-                'sensor_1': data.sensor_1,
-                'sensor_2': data.sensor_2,
-                'sensor_3': data.sensor_3,
-                'sensor_4': data.sensor_4,
-                'sensor_5': data.sensor_5,
-                'sensor_6': data.sensor_6,
-                'timestamp': data.timestamp
-            }
-        )
 
-    writer = csv.DictWriter(csvfile, header)
-    writer.writeheader()
-    for row in rows:
-        writer.writerow(row.items())
-        # writer.writerow(
-        #     dict(
-        #         (k, v.encode('utf-8') if type(v) is unicode else v) for k, v in row.items()
-        #     )
-        # )
-    csvfile.seek(0)
-    return send_file(csvfile, attachment_filename='sales_export.csv', as_attachment=True)
+    sensor_1 = pd.Series()
+    sensor_2 = pd.Series()
+    sensor_3 = pd.Series()
+    sensor_4 = pd.Series()
+    sensor_5 = pd.Series()
+    sensor_6 = pd.Series()
+    timestamp = pd.Series()
+
+    for data in data_list:
+        sensor_1.set_value(data.id, data.sensor_1),
+        sensor_2.set_value(data.id, data.sensor_2),
+        sensor_3.set_value(data.id, data.sensor_3),
+        sensor_4.set_value(data.id, data.sensor_4),
+        sensor_5.set_value(data.id, data.sensor_5),
+        sensor_6.set_value(data.id, data.sensor_6),
+        timestamp.set_value(data.id, data.timestamp)
+
+    df = pd.DataFrame({
+        'sensor_1': sensor_1,
+        'sensor_2': sensor_2,
+        'sensor_3': sensor_3,
+        'sensor_4': sensor_4,
+        'sensor_5': sensor_5,
+        'sensor_6': sensor_6,
+        'timestamp': timestamp
+    })
+
+    filename = "C" + cushion_id + "R" + rand_id + "_" + datetime.now().strftime("%Y%m%d")
+    res = make_response(df.to_csv())
+    res.headers["Content-Disposition"] = "attachment; filename=" + filename + ".csv"
+    res.headers["Content-Type"] = "text/csv"
+    return res
 
 
 '''
