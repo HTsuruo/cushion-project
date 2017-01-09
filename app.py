@@ -125,7 +125,7 @@ def get_data(cushion_id):
     raw_data = []
     for i in range(SENSOR_NUM):
         raw_data.append(request.args.get('sensor_'+str(i+1), type=int))
-    rand_id = request.args.get('randId', type=int)
+    rand_id = request.args.get('rand_id', type=int)
 
     if raw_data is None or rand_id is None:
         return jsonify(error="sensor data could not found.")
