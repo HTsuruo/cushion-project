@@ -31,14 +31,14 @@ def do_calibration(cushion_id, rand_id, raw_data):
     return cali_data
 
 
-def calc_working_state(data):
+def calc_working_state(cushion_id, data):
     # not sitting state.
     if data[0] < SITTING_THRESHOLD and data[1] < SITTING_THRESHOLD:
         return 0
 
     # sitting state.
     p_val = get_posture_value(data)
-    m_val = get_movement_value(data)
+    m_val = get_movement_value(cushion_id, data)
     return p_val * m_val
 
 
@@ -50,8 +50,8 @@ def get_posture_value(data):
     return 1  # not working.
 
 
-def get_movement_value(data):
-    diff = get_movement_diff(data)
+def get_movement_value(cushion_id, data):
+    diff = get_movement_diff(cushion_id, data)
     if diff < 10:
         return 5
     if diff < 20:
