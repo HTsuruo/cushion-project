@@ -135,8 +135,8 @@ def get_data(cushion_id):
         return jsonify(error="sensor data could not found.")
 
     cali_data = calc.do_calibration(cushion_id, rand_id, raw_data)
-    ws = calc.calc_working_state(cushion_id, cali_data)
-    diff = calc.get_movement_diff(cushion_id, cali_data)
+    ws = calc.calc_working_state(cushion_id, raw_data, cali_data)
+    diff = calc.get_movement_diff(cushion_id, raw_data)
 
     # DBにデータを書き込みます
     item = SensorData(cushion_id, raw_data[0], raw_data[1], raw_data[2], raw_data[3], raw_data[4], raw_data[5], rand_id)

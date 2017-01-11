@@ -31,14 +31,14 @@ def do_calibration(cushion_id, rand_id, raw_data):
     return cali_data
 
 
-def calc_working_state(cushion_id, data):
+def calc_working_state(cushion_id, raw_data, cali_data):
     # not sitting state.
-    if data[0] < SITTING_THRESHOLD and data[1] < SITTING_THRESHOLD:
+    if cali_data[0] < SITTING_THRESHOLD and cali_data[1] < SITTING_THRESHOLD:
         return 0
 
     # sitting state.
-    p_val = get_posture_value(data)
-    m_val = get_movement_value(cushion_id, data)
+    p_val = get_posture_value(cali_data)
+    m_val = get_movement_value(cushion_id, raw_data)
     return p_val * m_val
 
 
@@ -50,8 +50,8 @@ def get_posture_value(data):
     return 1  # not working.
 
 
-def get_movement_value(cushion_id, data):
-    diff = get_movement_diff(cushion_id, data)
+def get_movement_value(cushion_id, raw_data):
+    diff = calc_working_state(cushion_id, raw_data)
     if diff < 10:
         return 5
     if diff < 20:
@@ -63,12 +63,12 @@ def get_movement_value(cushion_id, data):
     return 1
 
 
-def get_movement_diff(cushion_id, target_data):
+def get_movement_diff(cushion_id, raw_data):
     pre_data_all = SensorData.query.filter_by(cushion_id=cushion_id).order_by(SensorData.timestamp.desc()).first()
     pre_data = []
     if pre_data_all is None:
         for i in range(SENSOR_NUM):
-            pre_data.append(target_data[i])
+            pre_data.append(raw_data[i])
     else:
         pre_data.append(pre_data_all.sensor_1)
         pre_data.append(pre_data_all.sensor_2)
@@ -79,7 +79,7 @@ def get_movement_diff(cushion_id, target_data):
 
     diff_data = []
     for i in range(SENSOR_NUM):
-        diff_data.append(target_data[i] - pre_data[i])
+        diff_data.append(raw_data[i] - pre_data[i])
         if diff_data[i] < 0:
             diff_data[i] *= -1
     diff = sum(diff_data)/SENSOR_NUM
