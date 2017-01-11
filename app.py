@@ -162,7 +162,7 @@ def get_data(cushion_id):
     data["ws_self"] = ws_self
     data["ws_partner"] = ws_partner
 
-    return jsonify(data=data)
+    return jsonify(data)
 
 
 @app.route('/api/data/post', methods=['POST'])
