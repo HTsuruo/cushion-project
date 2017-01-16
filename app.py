@@ -157,7 +157,7 @@ def get_data(cushion_id):
     ws_self = calc.get_working_state_average(cushion_id)
     ws_partner = calc.get_working_state_average(connected_id)
 
-    print("[working states]: "+"{self: "+ws_self+", partner: " + ws_partner + "}")
+    print("[working states]: "+"{self: "+ str(ws_self) +", partner: " + str(ws_partner) + "}")
 
     # for json data.
     data = {}
