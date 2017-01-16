@@ -23,14 +23,15 @@ def do_calibration(cushion_id, rand_id, raw_data):
         base_data.append(base.sensor_5)
         base_data.append(base.sensor_6)
 
-    print("raw_data[do_calibration]:" + str(raw_data))
-    print("base_data[do_calibration]: " + str(base_data))
+    print("raw_data:" + str(raw_data))
+    print("base_data: " + str(base_data))
 
     cali_data = []
     for i in range(SENSOR_NUM):
         cali_data.append(raw_data[i] - base_data[i])
         if cali_data[i] < 0:
             cali_data[i] = 0
+    print("cali_data: " + str(cali_data))
     return cali_data
 
 
