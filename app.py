@@ -134,7 +134,7 @@ def get_data(cushion_id):
     if raw_data is None or rand_id is None:
         return jsonify(error="sensor data could not found.")
 
-    ws = calc.calc_working_state(cushion_id, raw_data)
+    ws = calc.calc_working_state(cushion_id, raw_data, rand_id)
     diff = calc.get_movement_diff(cushion_id, raw_data)
 
     # DBにデータを書き込みます
